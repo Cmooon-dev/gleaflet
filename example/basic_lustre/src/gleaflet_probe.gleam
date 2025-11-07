@@ -37,14 +37,18 @@ fn init(_) -> #(Model, effect.Effect(Message)) {
     effect.after_paint(fn(dispatch, _root_element) {
       let map =
         map.new_map("map")
-        |> map.add_tile_layer(
-          "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-          map.LeafletLayerOptions(
-            max_zoom: 19,
-            min_zoom: 1,
-            opacity: 1.0,
-            attribution: "© OpenStreetMap contributors",
-          ),
+        // Use classical image styles
+        // |> map.add_tile_layer(
+        //   "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        //   map.LeafletLayerOptions(
+        //     max_zoom: 19,
+        //     min_zoom: 1,
+        //     opacity: 1.0,
+        //     attribution: "© OpenStreetMap contributors",
+        //   ),
+        // )
+        |> map.add_maplibre_gl_style(
+          "https://tiles.openfreemap.org/styles/liberty",
         )
         |> map.set_view(52.526876, 13.407703, 19)
 

@@ -18,8 +18,8 @@ target = "javascript"
 bun = "system"
 
 [tools.lustre.html]
-stylesheets = [{ href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" }]
-scripts = [{ src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" }]
+stylesheets = [{ href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" }, {href = "https://unpkg.com/maplibre-gl/dist/maplibre-gl.css"}]
+scripts = [{ src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" }, {src = "https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"}, {src = "https://unpkg.com/@maplibre/maplibre-gl-leaflet/leaflet-maplibre-gl.js"}]
 
 
 [dependencies]

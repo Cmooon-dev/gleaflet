@@ -13,6 +13,14 @@ export function add_tile_layer(map, url, options) {
   return map;
 }
 
+export function add_maplibre_gl_style(map, url) {
+  L.maplibreGL({
+    style: url,
+  }).addTo(map);
+
+  return map;
+}
+
 export function add_marker(map, marker) {
   marker.addTo(map);
   return map;

@@ -97,3 +97,12 @@ pub fn add_tile_layer(
   url url: String,
   options options: LeafletLayerOptions,
 ) -> LeafletMap
+
+/// Adds a MapLibre GL style to the map
+///
+/// ## Parameters
+///
+/// * `map` - The map instance to add the style to
+/// * `url` - URL to the MapLibre GL style JSON
+@external(javascript, "./gleaflet_ffi.js", "add_maplibre_gl_style")
+pub fn add_maplibre_gl_style(map map: LeafletMap, url url: String) -> LeafletMap

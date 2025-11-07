@@ -58,10 +58,6 @@ fn add_marker_popup_internal(
 /// * `name` - Display name for the marker
 /// * `popup` - Optional popup text that appears when the marker is clicked
 ///
-/// ## Returns
-///
-/// A new `LeafletMarker` instance
-///
 /// ## Example
 ///
 /// ```gleam
