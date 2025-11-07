@@ -1,13 +1,13 @@
+import gleaflet/icon
+import gleaflet/map
+import gleaflet/marker
 import gleam/list
 import gleam/option
-import icon
 import lustre
 import lustre/attribute
 import lustre/effect
 import lustre/element/html
 import lustre/event
-import map
-import marker
 
 // Create your basic lustre messages
 type Message {

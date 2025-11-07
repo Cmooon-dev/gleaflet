@@ -1,6 +1,6 @@
+import gleaflet/icon
+import gleaflet/map.{type LeafletMap}
 import gleam/option
-import icon
-import map.{type LeafletMap}
 
 /// Internal representation of a Leaflet marker.
 /// This type is used to interface with the JavaScript FFI and should not be created directly.

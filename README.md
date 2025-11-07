@@ -22,7 +22,9 @@ gleam add gleaflet@1
 
 Usage with lustre:
 ```gleam
-import gleaflet
+import gleaflet/icon
+import gleaflet/map
+import gleaflet/marker
 import gleam/list
 import gleam/option
 import lustre
@@ -33,16 +35,13 @@ import lustre/event
 
 // Create your basic lustre messages
 type Message {
-  MapMounted(gleaflet.LeafletMap)
-  AddMarker(gleaflet.LeafletMarker)
+  MapMounted(map.LeafletMap)
+  AddMarker(marker.LeafletMarker)
   RemoveMarker(String)
 }
 
 type Model {
-  Model(
-    map: option.Option(gleaflet.LeafletMap),
-    markers: List(gleaflet.LeafletMarker),
-  )
+  Model(map: option.Option(map.LeafletMap), markers: List(marker.LeafletMarker))
 }
 
 pub fn main() {
@@ -61,24 +60,29 @@ fn init(_) -> #(Model, effect.Effect(Message)) {
   let mount_map =
     effect.after_paint(fn(dispatch, _root_element) {
       let map =
-        gleaflet.new_map("map")
-        |> gleaflet.add_tile_layer(
-          "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-          gleaflet.LeafletLayerOptions(
-            max_zoom: 19,
-            min_zoom: 1,
-            opacity: 1.0,
-            attribution: "© OpenStreetMap contributors",
-          ),
+        map.new_map("map")
+        // Use classical image styles
+        // |> map.add_tile_layer(
+        //   "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        //   map.LeafletLayerOptions(
+        //     max_zoom: 19,
+        //     min_zoom: 1,
+        //     opacity: 1.0,
+        //     attribution: "© OpenStreetMap contributors",
+        //   ),
+        // )
+        |> map.add_maplibre_gl_style(
+          "https://tiles.openfreemap.org/styles/liberty",
         )
-        |> gleaflet.set_view(52.526876, 13.407703, 19)
+        |> map.set_view(52.526876, 13.407703, 19)
 
       // Create a marker that should be preset on from the start
       let restaurant_marker =
-        gleaflet.new_marker(
+        marker.new_marker(
           52.526876,
           13.407703,
           "shiso",
+          option.None,
           option.Some("Tasty Burgers in Berlin"),
         )
 
@@ -100,7 +104,7 @@ fn update(model: Model, message: Message) -> #(Model, effect.Effect(Message)) {
     AddMarker(marker) -> {
       let assert option.Some(map) = model.map
       // Render this new marker on the map
-      gleaflet.add_marker(map, marker)
+      marker.add_marker_to_map(map, marker)
       Model(..model, markers: list.append(model.markers, [marker]))
     }
     RemoveMarker(name) -> {
@@ -111,7 +115,7 @@ fn update(model: Model, message: Message) -> #(Model, effect.Effect(Message)) {
         list.find(model.markers, fn(marker) { marker.name == name })
 
       // Remove the market from the map
-      gleaflet.remove_marker(map, marker)
+      marker.remove_marker_from_map(map, marker)
 
       Model(
         ..model,
@@ -143,12 +147,25 @@ fn view(model: Model) {
         attribute.disabled(list.length(model.markers) >= 2),
         event.on_click({
           // Create a new marker that will be rendered on the map
+          // We use a custom image here
+          // Since we do not use the shadow, we just set its size to 0
           // Note the name, as we will use it to delete the marker later
           let marker =
-            gleaflet.new_marker(
+            marker.new_marker(
               52.526458,
               13.407778,
               "dump_ling",
+              option.Some(
+                icon.LeafletIcon(
+                  icon_url: "/restaurant.png",
+                  shadow_url: "/restaurant.png",
+                  icon_size: #(50, 50),
+                  shadow_size: #(0, 0),
+                  icon_anchor: #(25, 50),
+                  shadow_anchor: #(0, 0),
+                  popup_anchor: #(0, -45),
+                ),
+              ),
               option.Some("Another tasty restaurant"),
             )
           AddMarker(marker)
