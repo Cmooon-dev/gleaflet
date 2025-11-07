@@ -1,0 +1,13 @@
+name = "gleaflet"
+version = "0.0.1"
+target = "javascript"
+
+description = "A simple Gleam wrapper for Leaflet.js"
+licences = ["MIT"]
+repository = { type = "github", user = "Cmooon-dev", repo = "gleaflet" }
+
+[dependencies]
+gleam_stdlib = ">= 0.44.0 and < 2.0.0"
+
+[dev-dependencies]
+gleeunit = ">= 1.0.0 and < 2.0.0"
