@@ -1,6 +1,7 @@
 import gleaflet/icon
 import gleaflet/map
 import gleaflet/marker
+import gleaflet/polyline
 import gleam/list
 import gleam/option
 import lustre
@@ -14,10 +15,16 @@ type Message {
   MapMounted(map.LeafletMap)
   AddMarker(marker.LeafletMarker)
   RemoveMarker(String)
+  AddPolyline(polyline.LeafletPolyline)
+  RemovePolyline
 }
 
 type Model {
-  Model(map: option.Option(map.LeafletMap), markers: List(marker.LeafletMarker))
+  Model(
+    map: option.Option(map.LeafletMap),
+    markers: List(marker.LeafletMarker),
+    polylines: List(polyline.LeafletPolyline),
+  )
 }
 
 pub fn main() {
@@ -29,7 +36,7 @@ pub fn main() {
 }
 
 fn init(_) -> #(Model, effect.Effect(Message)) {
-  let model = Model(map: option.None, markers: [])
+  let model = Model(map: option.None, markers: [], polylines: [])
 
   // Create an effect that mounts the map
   // It's important to run this after the first paint, so that the div with the map is present
@@ -68,6 +75,27 @@ fn init(_) -> #(Model, effect.Effect(Message)) {
       // Tell the runtime that the marker is created
       dispatch(AddMarker(restaurant_marker))
 
+      // Create a polyline connecting some points
+      let polyline_points = [
+        #(52.526876, 13.407703),
+        // Restaurant location
+        #(52.526458, 13.407778),
+        // Another location
+        #(52.527, 13.408),
+        // Third location
+      ]
+
+      let polyline_options =
+        polyline.LeafletPolylineOptions(
+          color: "#ff0000",
+          weight: 4,
+          opacity: 0.8,
+        )
+
+      let route_polyline =
+        polyline.new_polyline(polyline_points, polyline_options)
+      dispatch(AddPolyline(route_polyline))
+
       Nil
     })
 
@@ -98,6 +126,22 @@ fn update(model: Model, message: Message) -> #(Model, effect.Effect(Message)) {
         // Remove the marker from the list
         markers: list.filter(model.markers, fn(marker) { marker.name != name }),
       )
+    }
+    AddPolyline(polyline) -> {
+      let assert option.Some(map) = model.map
+      // Render this new polyline on the map
+      polyline.add_polyline_to_map(map, polyline)
+      Model(..model, polylines: list.append(model.polylines, [polyline]))
+    }
+    RemovePolyline -> {
+      let assert option.Some(map) = model.map
+
+      // Remove all polylines from the map
+      list.each(model.polylines, fn(polyline) {
+        polyline.remove_polyline_from_map(map, polyline)
+      })
+
+      Model(..model, polylines: [])
     }
   }
 
@@ -156,6 +200,13 @@ fn view(model: Model) {
         event.on_click({ RemoveMarker("dump_ling") }),
       ],
       [html.text("Remove other marker")],
+    ),
+    html.button(
+      [
+        attribute.disabled(model.polylines == []),
+        event.on_click({ RemovePolyline }),
+      ],
+      [html.text("Remove polylines")],
     ),
   ])
 }
