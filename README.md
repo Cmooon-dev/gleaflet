@@ -20,6 +20,94 @@ Please feel free to open an issue if you'd like to see more features added.
 gleam add gleaflet@1
 ```
 
+## Builder Pattern API
+
+Gleaflet uses a builder pattern for creating markers, polylines, and icons, making the API cleaner and more extensible:
+
+### Markers
+
+```gleam
+import gleaflet/marker
+import gleaflet/icon
+import gleam/option
+
+// Simple marker with just coordinates and name
+let simple_marker = marker.new_marker(40.7128, -74.0060, "New York")
+  |> marker.build()
+
+// Marker with popup
+let marker_with_popup = marker.new_marker(40.7128, -74.0060, "New York")
+  |> marker.with_popup("Welcome to NYC!")
+  |> marker.build()
+
+// Marker with custom icon and popup
+let custom_marker = marker.new_marker(40.7128, -74.0060, "New York")
+  |> marker.with_popup("Welcome to NYC!")
+  |> marker.with_icon(custom_icon)
+  |> marker.build()
+```
+
+### Icons
+
+```gleam
+import gleaflet/icon
+
+// Simple icon with just URL (uses sensible defaults)
+let simple_icon = icon.new_icon("/marker.png")
+  |> icon.build()
+
+// Icon with custom size and anchor
+let sized_icon = icon.new_icon("/marker.png")
+  |> icon.with_icon_size(#(25, 41))
+  |> icon.with_icon_anchor(#(12, 41))
+  |> icon.build()
+
+// Complete icon with shadow and popup anchor
+let complete_icon = icon.new_icon("/marker.png")
+  |> icon.with_shadow("/shadow.png")
+  |> icon.with_icon_size(#(25, 41))
+  |> icon.with_shadow_size(#(41, 41))
+  |> icon.with_icon_anchor(#(12, 41))
+  |> icon.with_shadow_anchor(#(12, 41))
+  |> icon.with_popup_anchor(#(0, -34))
+  |> icon.build()
+```
+
+**Default values for icons:**
+- Shadow URL: "" (no shadow)
+- Icon size: #(25, 41) (typical Leaflet marker)
+- Shadow size: #(41, 41) (typical Leaflet shadow)
+- Icon anchor: #(12, 41) (bottom center)
+- Shadow anchor: #(12, 41) (bottom center)
+- Popup anchor: #(0, -34) (above marker)
+
+### Polylines
+
+```gleam
+import gleaflet/polyline
+
+let points = [
+  #(40.7128, -74.0060),  // New York
+  #(51.5074, -0.1278),   // London
+]
+
+// Simple polyline with default styling
+let simple_polyline = polyline.new_polyline(points)
+  |> polyline.build()
+
+// Styled polyline
+let styled_polyline = polyline.new_polyline(points)
+  |> polyline.with_color("#ff0000")
+  |> polyline.with_weight(4)
+  |> polyline.with_opacity(0.8)
+  |> polyline.build()
+```
+
+**Default values for polylines:**
+- Color: "#3388ff" (Leaflet default blue)
+- Weight: 5 pixels
+- Opacity: 0.5
+
 Usage with lustre:
 ```gleam
 import gleaflet/icon
@@ -78,13 +166,9 @@ fn init(_) -> #(Model, effect.Effect(Message)) {
 
       // Create a marker that should be preset on from the start
       let restaurant_marker =
-        marker.new_marker(
-          52.526876,
-          13.407703,
-          "shiso",
-          option.None,
-          option.Some("Tasty Burgers in Berlin"),
-        )
+        marker.new_marker(52.526876, 13.407703, "shiso")
+        |> marker.with_popup("Tasty Burgers in Berlin")
+        |> marker.build()
 
       // Tell the runtime that the map is created
       dispatch(MapMounted(map))
@@ -151,23 +235,20 @@ fn view(model: Model) {
           // Since we do not use the shadow, we just set its size to 0
           // Note the name, as we will use it to delete the marker later
           let marker =
-            marker.new_marker(
-              52.526458,
-              13.407778,
-              "dump_ling",
-              option.Some(
-                icon.LeafletIcon(
-                  icon_url: "/restaurant.png",
-                  shadow_url: "/restaurant.png",
-                  icon_size: #(50, 50),
-                  shadow_size: #(0, 0),
-                  icon_anchor: #(25, 50),
-                  shadow_anchor: #(0, 0),
-                  popup_anchor: #(0, -45),
-                ),
+            marker.new_marker(52.526458, 13.407778, "dump_ling")
+            |> marker.with_icon(
+              icon.LeafletIcon(
+                icon_url: "/restaurant.png",
+                shadow_url: "/restaurant.png",
+                icon_size: #(50, 50),
+                shadow_size: #(0, 0),
+                icon_anchor: #(25, 50),
+                shadow_anchor: #(0, 0),
+                popup_anchor: #(0, -45),
               ),
-              option.Some("Another tasty restaurant"),
             )
+            |> marker.with_popup("Another tasty restaurant")
+            |> marker.build()
           AddMarker(marker)
         }),
       ],

@@ -61,13 +61,9 @@ fn init(_) -> #(Model, effect.Effect(Message)) {
 
       // Create a marker that should be preset on from the start
       let restaurant_marker =
-        marker.new_marker(
-          52.526876,
-          13.407703,
-          "shiso",
-          option.None,
-          option.Some("Tasty Burgers in Berlin"),
-        )
+        marker.new_marker(52.526876, 13.407703, "shiso")
+        |> marker.with_popup("Tasty Burgers in Berlin")
+        |> marker.build()
 
       // Tell the runtime that the map is created
       dispatch(MapMounted(map))
@@ -85,15 +81,12 @@ fn init(_) -> #(Model, effect.Effect(Message)) {
         // Third location
       ]
 
-      let polyline_options =
-        polyline.LeafletPolylineOptions(
-          color: "#ff0000",
-          weight: 4,
-          opacity: 0.8,
-        )
-
       let route_polyline =
-        polyline.new_polyline(polyline_points, polyline_options)
+        polyline.new_polyline(polyline_points)
+        |> polyline.with_color("#ff0000")
+        |> polyline.with_weight(5)
+        |> polyline.build()
+
       dispatch(AddPolyline(route_polyline))
 
       Nil
@@ -168,26 +161,18 @@ fn view(model: Model) {
         event.on_click({
           // Create a new marker that will be rendered on the map
           // We use a custom image here
-          // Since we do not use the shadow, we just set its size to 0
           // Note the name, as we will use it to delete the marker later
           let marker =
-            marker.new_marker(
-              52.526458,
-              13.407778,
-              "dump_ling",
-              option.Some(
-                icon.LeafletIcon(
-                  icon_url: "/restaurant.png",
-                  shadow_url: "/restaurant.png",
-                  icon_size: #(50, 50),
-                  shadow_size: #(0, 0),
-                  icon_anchor: #(25, 50),
-                  shadow_anchor: #(0, 0),
-                  popup_anchor: #(0, -45),
-                ),
-              ),
-              option.Some("Another tasty restaurant"),
+            marker.new_marker(52.526458, 13.407778, "dump_ling")
+            |> marker.with_icon(
+              icon.new_icon("/restaurant.png")
+              |> icon.with_icon_size(#(50, 50))
+              |> icon.with_icon_anchor(#(25, 50))
+              |> icon.with_popup_anchor(#(0, -45))
+              |> icon.build(),
             )
+            |> marker.with_popup("Another tasty restaurant")
+            |> marker.build()
           AddMarker(marker)
         }),
       ],
